@@ -28,7 +28,7 @@ exports.getRules = async (fullName) => {
   }
 }
 
-exports.searchRequest = async (query) => {
+exports.searchRepos = async (query) => {
   const [owner, name] = query.split("/");
   let q = query;
   

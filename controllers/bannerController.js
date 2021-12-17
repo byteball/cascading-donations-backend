@@ -34,7 +34,7 @@ module.exports = bannerController = async (request, reply) => {
         ${rulesNotForOwner.map((r, i) => `<g>
           <line stroke-linecap="round" x1="32" y1="${100 + (i === rulesNotForOwner.length - 1 ? 20 : 22) * i}" x2="32" y2="${125 + (i === rulesNotForOwner.length - 1 ? 20 : 22) * i}" stroke-width="5" stroke="#ddd" />
           <line stroke-linecap="round" x1="32" y1="${120 + 20 * i}" x2="100" y2="${120 + 20 * i}" stroke-width="5" stroke="#ddd" />
-          <g style="user-select: none; -ms-user-select: none; -moz-user-select: none; -khtml-user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; color: #2D2C2C;"><text font-family="Segoe UI, Ubuntu, Sans-Serif" font-weight="300" className="unselectable" x="120" y="${125 + 20 * i}">${truncate(r.repo, 24)} - ${r.percent}%</text></g>
+          <g style="user-select: none; -ms-user-select: none; -moz-user-select: none; -khtml-user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; color: #2D2C2C;"><text font-family="Segoe UI, Ubuntu, Sans-Serif" font-weight="300" className="unselectable" x="120" y="${125 + 20 * i}">${truncate(r.repo.replace(/(<([^>]+)>)/gi, ""), 24)} - ${r.percent}%</text></g>
         </g>`).join(" ")}
       </svg>
     `)

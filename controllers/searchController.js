@@ -1,4 +1,4 @@
-const { searchRequest } = require("../utils");
+const { searchRepos } = require("../utils");
 
 const CACHE_STORAGE_TIME = 5; // minutes
 const GITHUB_SEARCH_RATE_LIMIT = 28; // req/min
@@ -26,7 +26,7 @@ module.exports = async (request, reply) => {
       let data = [];
 
       try {
-        data = await searchRequest(query);
+        data = await searchRepos(query);
       } catch {
         limiter.limit = 0;
         return reply.tooManyRequests();
