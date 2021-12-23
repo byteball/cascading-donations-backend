@@ -31,7 +31,7 @@ eventBus.on('aa_response', async function (objResponse) {
 		const repository = responseVars.message.split(" ")[3];
 		const owner = repository.split("/")[0];
 
-		if (conf.allowedRepos.includes(repository) || conf.allowedUsers.includes(owner)) {
+		if (conf.watchedRepos.includes(repository) || conf.watchedUsers.includes(owner) || conf.watchedRepos.length === 0 && conf.watchedUsers.length === 0) {
 			const donor = objResponse.trigger_address;
 			const donatedVarName = Object.keys(responseVars).find(v => v.includes("donated_in_"));
 			const asset = donatedVarName.split("_")[2];
@@ -80,7 +80,7 @@ async function start() {
 
 async function initDiscord() {
 	if (!conf.discord_token)
-		throw Error("discord_token missing in conf");
+		return console.log("discord_token missing in conf, will not send discord notifications");
 	if (!conf.discord_channels || !conf.discord_channels.length)
 		throw Error("channels missing in conf");
 	discordClient = new Discord.Client();

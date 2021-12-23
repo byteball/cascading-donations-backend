@@ -25,7 +25,7 @@ exports.github_token = process.env.github_token; // user token
 exports.token_price_url = process.env.testnet ? "https://testnet.ostable.org/r/prices" : "https://referrals.ostable.org/prices";
 exports.bridge_url = process.env.testnet ? "https://testnet-bridge.counterstake.org/api/bridges" : "https://testnet.ostable.org/r/prices";
 
-exports.allowedUsers = process.env.allowedUsers ? process.env.allowedUsers.split(",") : [];
-exports.allowedRepos = process.env.allowedRepos ? process.env.allowedRepos.split(",") : [];
+exports.watchedUsers = process.env.watchedUsers ? process.env.watchedUsers.split(/\s*,\s*/) : [];
+exports.watchedRepos = process.env.watchedRepos ? process.env.watchedRepos.split(/\s*,\s*/) : [];
 
 console.log('finished server conf');
