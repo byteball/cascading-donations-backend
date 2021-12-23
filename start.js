@@ -47,7 +47,7 @@ eventBus.on('aa_response', async function (objResponse) {
 					{ name: "Donor", value: `[${donor}](${`https://${conf.testnet ? "testnet" : ""}explorer.obyte.org/#${donor}`})` },
 					{ name: "Repository", value: `[${repository}](https://github.com/${repository})` },
 					{ name: "Amount", value: `[${amount / 10 ** decimals} ${symbol}](https://${conf.testnet ? "testnet" : ""}explorer.obyte.org/#${trigger_unit})` },
-					{ name: "\u200B", value: `You can also [support](${conf.frontend_url}/repo/${repository}) this repository`, inline: true }
+					{ name: "\u200B", value: `You can [donate to ${repository}](${conf.frontend_url}/repo/${repository}) on kivach.org`, inline: true }
 					)
 				.setThumbnail(`https://avatars.githubusercontent.com/${repository.split("/")[0]}`)
 			sendToDiscord(embed);
