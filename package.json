@@ -4,10 +4,12 @@
 	"author": "Obyte",
 	"license": "MIT",
 	"keywords": [
-		"discord",
-		"dag",
 		"donations",
-		"github"
+		"cascading donations",
+		"github",
+		"obyte",
+		"dag",
+		"discord"
 	],
 	"scripts": {
 		"start": "node start.js"
@@ -20,5 +22,8 @@
 		"fastify-cors": "^6.0.2",
 		"fastify-sensible": "^3.1.2",
 		"ocore": "git+https://github.com/byteball/ocore.git"
+	},
+	"resolutions": {
+		"level-rocksdb": "^4.0.0"
 	}
 }
