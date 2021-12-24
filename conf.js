@@ -20,7 +20,7 @@ exports.token_registry_AA_address = "O6H6ZIFI57X3PLTYHOCVYPP5A553CYFQ"
 exports.frontend_url = process.env.frontend_url;
 exports.webserverPort = process.env.webserverPort;
 
-exports.github_token = process.env.github_token; // user token
+exports.github_tokens = process.env.github_tokens ? process.env.github_tokens.split(",") : [];
 
 exports.token_price_url = process.env.testnet ? "https://testnet.ostable.org/r/prices" : "https://referrals.ostable.org/prices";
 exports.bridge_url = process.env.testnet ? "https://testnet-bridge.counterstake.org/api/bridges" : "https://testnet.ostable.org/r/prices";
