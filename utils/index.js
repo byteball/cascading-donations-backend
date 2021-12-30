@@ -1,4 +1,5 @@
 const DAG = require('aabot/dag.js');
+const { default: axios } = require('axios');
 const conf = require('ocore/conf.js');
 
 const githubAxiosInstance = require('../githubAxiosInstance');
@@ -34,16 +35,29 @@ exports.getRules = async (fullName) => {
   }
 }
 
-exports.searchRepos = async (query) => {
+exports.searchRepos = async (query, token) => {
   const [owner, name] = query.split("/");
   let q = query;
 
   if (owner && name) {
-    q = `user:${owner} ${name}`
+    q = `user:${owner} ${name} fork:true`
   }
 
-  return githubAxiosInstance.get(`/search/repositories?q=${encodeURIComponent(q)}`).then((res) => {
-    const items = res.data.items;
-    return items.map((item) => ({ title: item.full_name, description: item.description }))
-  });
+  if (!token) {
+    return githubAxiosInstance.get(`/search/repositories?q=${encodeURIComponent(q)}`).then((res) => {
+      const items = res.data.items;
+      return items.map((item) => ({ title: item.full_name, description: item.description }))
+    });
+  } else {
+    return axios.get(`https://api.github.com/search/repositories?q=${encodeURIComponent(q)}`, {
+      headers: {
+        Authorization: `token ${token}`,
+        "User-Agent": "CASCADING DONATION",
+        "Content-Type": "application/json"
+      }
+    }).then((res) => {
+      const items = res.data.items;
+      return items.map((item) => ({ title: item.full_name, description: item.description }))
+    });
+  }
 }
