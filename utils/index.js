@@ -6,7 +6,13 @@ const githubAxiosInstance = require('../githubAxiosInstance');
 
 exports.getRules = async (fullName) => {
   try {
-    let rules = await DAG.readAAStateVars(conf.aa_address, `${fullName}*rules`).then(vars => vars[`${fullName}*rules`]) || {};
+    let exist = false;
+    let stateVars = await DAG.readAAStateVars(conf.aa_address, `${fullName}*rules`);
+    let rules = stateVars[`${fullName}*rules`] || {};
+
+    if (Object.keys(stateVars).length > 0) {
+      exist = true;
+    }
 
     if (Object.keys(rules).length > 0) {
       const sum = Object.values(rules).reduce((prev, current) => {
@@ -14,18 +20,18 @@ exports.getRules = async (fullName) => {
       }, 0);
 
       if (sum === 100) {
-        return rules
+        return [rules, exist];
       } else {
-        return Object.assign(rules, { [fullName]: 100 - sum })
+        return [Object.assign(rules, { [fullName]: 100 - sum }), exist];
       }
 
     } else {
-      return { [fullName]: 100 }
+      return [{ [fullName]: 100 }, exist];
     }
 
   } catch (e) {
     console.error(e);
-    return ({})
+    return ([{}, false])
   }
 }
 
@@ -34,8 +40,9 @@ exports.searchRepos = async (query, token) => {
   let q = query;
 
   if (owner && name) {
-    q = `user:${owner} ${name}`
+    q = `user:${owner} ${name} fork:true`
   }
+
   if (!token) {
     return githubAxiosInstance.get(`/search/repositories?q=${encodeURIComponent(q)}`).then((res) => {
       const items = res.data.items;
