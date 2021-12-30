@@ -6,12 +6,12 @@ const githubAxiosInstance = require('../githubAxiosInstance');
 
 exports.getRules = async (fullName) => {
   try {
-    let exists = false;
+    let exist = false;
     let stateVars = await DAG.readAAStateVars(conf.aa_address, `${fullName}*rules`);
     let rules = stateVars[`${fullName}*rules`] || {};
 
     if (Object.keys(stateVars).length > 0) {
-      exists = true;
+      exist = true;
     }
 
     if (Object.keys(rules).length > 0) {
@@ -20,13 +20,13 @@ exports.getRules = async (fullName) => {
       }, 0);
 
       if (sum === 100) {
-        return [rules, exists];
+        return [rules, exist];
       } else {
-        return [Object.assign(rules, { [fullName]: 100 - sum }), exists];
+        return [Object.assign(rules, { [fullName]: 100 - sum }), exist];
       }
 
     } else {
-      return [{ [fullName]: 100 }, exists];
+      return [{ [fullName]: 100 }, exist];
     }
 
   } catch (e) {
