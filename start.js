@@ -17,7 +17,7 @@ lightWallet.setLightVendorHost(conf.hub);
 let updaterIntervalId;
 let refreshIntervalId;
 
-eventBus.on('connected', function (ws) {
+eventBus.once('connected', function (ws) {
 	network.initWitnessesIfNecessary(ws, start);
 });
 
