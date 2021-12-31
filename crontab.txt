@@ -1,0 +1,1 @@
+*/20 * * * * cd cascading-donations-backend; node check_daemon.js 1>>~/.config/cascading-donations-backend/check_daemon.log 2>>~/.config/cascading-donations-backend/check_daemon.err
