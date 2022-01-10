@@ -16,6 +16,7 @@ lightWallet.setLightVendorHost(conf.hub);
 
 let updaterIntervalId;
 let refreshIntervalId;
+let updatePriceIntervalId;
 
 eventBus.once('connected', function (ws) {
 	network.initWitnessesIfNecessary(ws, start);
@@ -75,6 +76,9 @@ async function start() {
 
 	if (updaterIntervalId) clearInterval(intervalId);
 	updaterIntervalId = setInterval(updater, 60 * 60 * 1000);
+
+	if (updatePriceIntervalId) clearInterval(updatePriceIntervalId);
+	updatePriceIntervalId = setInterval(getTokens, 20 * 60 * 1000);
 }
 
 
