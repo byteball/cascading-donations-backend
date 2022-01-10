@@ -86,7 +86,7 @@ module.exports = async () => {
   foreignNetworks.forEach((network) => {
     Object.keys(data[network]).forEach(asset => {
       priceGetters.push(
-        getPriceTokens(asset, network).then(price => {
+        getTokenPrice(asset, network).then(price => {
           if (price){
             data[network][asset].price = price || null;
           } else if (!data[network][asset].price) {
@@ -153,7 +153,7 @@ async function tryGetTokenPrice(network, token_address, nativeSymbol) {
   return null;
 }
 
-const getPriceTokens = async (asset, network) => {
+const getTokenPrice = async (asset, network) => {
   if (Object.keys(nativeSymbols).includes(network)) {
     if (asset === AddressZero) {
       try {
