@@ -36,14 +36,15 @@ module.exports = async () => {
         DAG.readAAStateVar(conf.token_registry_AA_address, `current_desc_${asset}`)
           .then((descHash) => descHash && DAG.readAAStateVar(conf.token_registry_AA_address, `decimals_${descHash}`)
             .then((decimals) => data.Obyte[asset].decimals = decimals || 0))
+          .catch((e) => console.log("decimals error", e))
       )
     }
-  }));
+  }).catch((e) => console.log("symbol error", e)));
 
   await Promise.all(symbolGetters);
   await Promise.all(decimalsGetters);
 
-  const bridges = await axios.get(conf.bridge_url).then(({ data }) => data.data);
+  const bridges = await axios.get(conf.bridge_url).then(({ data }) => data.data).catch(() => { console.log("getBridges error"); return [] });
 
   bridges.forEach(async (bridge) => {
     if (bridge.foreign_network === "Obyte" && (!(bridge.foreign_asset in data.Obyte))) {
@@ -87,7 +88,7 @@ module.exports = async () => {
     Object.keys(data[network]).forEach(asset => {
       priceGetters.push(
         getTokenPrice(asset, network).then(price => {
-          if (price){
+          if (price) {
             data[network][asset].price = price || null;
           } else if (!data[network][asset].price) {
             data[network][asset].price = null;
@@ -96,6 +97,8 @@ module.exports = async () => {
           if (obyte_asset && (obyte_asset in data.Obyte) && price) {
             data.Obyte[obyte_asset].price = price;
           }
+        }).catch(() => {
+          data[network][asset].price = null;
         })
       )
     })
@@ -162,7 +165,11 @@ const getTokenPrice = async (asset, network) => {
         return null
       }
     } else {
-      return await tryGetTokenPrice(network, asset, 'USD');
+      try {
+        return await tryGetTokenPrice(network, asset, 'USD');
+      } catch {
+        return null
+      }
     }
   } else {
     return null
