@@ -18,7 +18,10 @@ const coingeckoChainIds = {
 };
 
 module.exports = async () => {
-  const obyteTokensPrice = await axios.get(conf.token_price_url).then(({ data }) => data.data);
+  const obyteTokensPrice = await axios.get(conf.token_price_url).then(({ data }) => data.data).catch(() => null);
+
+  if (obyteTokensPrice === null) return null;
+
   const obyteTokens = Object.keys(obyteTokensPrice);
 
   const data = {
