@@ -9,7 +9,7 @@ module.exports = bannerController = async (request, reply) => {
     const fullName = request.query.repo;
     const [rules, exist] = await getRules(request.query.repo);
     const percentForOwner = rules[fullName] || 0;
-    const rulesNotForOwner = Object.keys(rules).filter(r => r !== fullName).map((repo) => ({ repo, percent: rules[repo] }));
+    const rulesNotForOwner = Object.keys(rules).filter(r => r !== fullName).map((repo) => ({ repo, percent: rules[repo] })).sort((a, b) => b.percent - a.percent);
 
     reply.headers({
       'Content-Type': 'image/svg+xml',
