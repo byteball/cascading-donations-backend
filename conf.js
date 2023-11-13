@@ -29,4 +29,7 @@ exports.bridge_url = process.env.testnet ? "https://testnet-bridge.counterstake.
 exports.watchedUsers = process.env.watchedUsers ? process.env.watchedUsers.split(/\s*,\s*/) : [];
 exports.watchedRepos = process.env.watchedRepos ? process.env.watchedRepos.split(/\s*,\s*/) : [];
 
+exports.prefix = "kivach";
+exports.last_full_reload_ts = 1699878936;
+
 console.log('finished server conf');

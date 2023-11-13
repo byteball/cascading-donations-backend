@@ -9,6 +9,8 @@ const tokensController = require('./controllers/tokensController.js');
 const searchController = require('./controllers/searchController.js');
 const recentController = require('./controllers/recentController.js');
 const repoRecentController = require('./controllers/repoRecentController.js');
+const totalDonatedController = require('./controllers/totalDonatedController.js');
+const donationsController = require('./controllers/donationsController.js');
 
 // Create instance
 const fastifyInstance = fastify({ logger: false });
@@ -27,6 +29,8 @@ fastifyInstance.get('/tokens', tokensController);
 fastifyInstance.get('/search', searchController);
 fastifyInstance.get('/recent/:page?', recentController);
 fastifyInstance.get('/recent/:owner/:repo/:page?', repoRecentController);
+fastifyInstance.get('/total_donated', totalDonatedController);
+fastifyInstance.get('/donations', donationsController);
 
 // Run the server
 module.exports = async () => {
