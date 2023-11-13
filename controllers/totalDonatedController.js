@@ -7,11 +7,11 @@ module.exports = async (request, reply) => {
 
   if (isNaN(Number(page)) || page < 1 || limit ? false : limit > 200) return reply.badRequest();
 
-  const total = await db.query(`SELECT COUNT(*) as total FROM ${conf.prefix}_rating`, []).then(([d]) => d.total);
+  const total = await db.query(`SELECT COUNT(*) as total FROM ${conf.prefix}_total_donated`, []).then(([d]) => d.total);
 
-  const ratingList = await db.query(
-    `SELECT * FROM ${conf.prefix}_rating ORDER BY usd_amount DESC LIMIT ? OFFSET ?`,
+  const totalDonatedList = await db.query(
+    `SELECT * FROM ${conf.prefix}_total_donated ORDER BY usd_amount DESC LIMIT ? OFFSET ?`,
     [limit, (page - 1) * limit]);
 
-  return { data: ratingList, pagination: { total, total_pages: Math.ceil(total / limit), current_page: page } }
+  return { data: totalDonatedList, pagination: { total, total_pages: Math.ceil(total / limit), current_page: page } }
 }

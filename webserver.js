@@ -9,7 +9,7 @@ const tokensController = require('./controllers/tokensController.js');
 const searchController = require('./controllers/searchController.js');
 const recentController = require('./controllers/recentController.js');
 const repoRecentController = require('./controllers/repoRecentController.js');
-const ratingController = require('./controllers/ratingController.js');
+const totalDonatedController = require('./controllers/totalDonatedController.js');
 const donationsController = require('./controllers/donationsController.js');
 
 // Create instance
@@ -29,7 +29,7 @@ fastifyInstance.get('/tokens', tokensController);
 fastifyInstance.get('/search', searchController);
 fastifyInstance.get('/recent/:page?', recentController);
 fastifyInstance.get('/recent/:owner/:repo/:page?', repoRecentController);
-fastifyInstance.get('/rating', ratingController);
+fastifyInstance.get('/total_donated', totalDonatedController);
 fastifyInstance.get('/donations', donationsController);
 
 // Run the server
