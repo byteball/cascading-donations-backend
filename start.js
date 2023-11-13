@@ -3,12 +3,16 @@ const network = require('ocore/network.js');
 const eventBus = require('ocore/event_bus.js');
 const lightWallet = require('ocore/light_wallet.js');
 const wallet_general = require('ocore/wallet_general.js');
-const DAG = require('aabot/dag.js');
 const Discord = require('discord.js');
 
 const webserver = require('./webserver.js');
 const updater = require('./popularRepoUpdater.js');
 const getTokens = require('./getTokens');
+
+const { create, api } = require('./db/index.js');
+
+const { getSymbolByAsset, getDecimalsBySymbolOrAsset } = require('aabot/token_registry.js');
+const tokensStore = require('./tokensStore.js');
 
 var discordClient = null;
 
@@ -18,7 +22,8 @@ let updaterIntervalId;
 let refreshIntervalId;
 let updatePriceIntervalId;
 
-eventBus.once('connected', function (ws) {
+eventBus.once('connected', async function (ws) {
+	await getTokens();
 	network.initWitnessesIfNecessary(ws, start);
 });
 
@@ -32,15 +37,16 @@ eventBus.on('aa_response', async function (objResponse) {
 		const repository = responseVars.message.split(" ")[3];
 		const owner = repository.split("/")[0];
 
-		if (conf.watchedRepos.includes(repository) || conf.watchedUsers.includes(owner) || conf.watchedRepos.length === 0 && conf.watchedUsers.length === 0) {
-			const donor = objResponse.trigger_address;
-			const donatedVarName = Object.keys(responseVars).find(v => v.includes("donated_in_"));
-			const asset = donatedVarName.split("_")[2];
-			const amount = responseVars[donatedVarName];
-			const trigger_unit = objResponse.trigger_unit;
-			const symbol = asset === "base" ? "GBYTE" : await getSymbol(asset);
-			const decimals = asset === "base" ? 9 : await getDecimal(asset);
+		const donor = objResponse.trigger_address;
+		const donatedVarName = Object.keys(responseVars).find(v => v.includes("donated_in_"));
+		const asset = donatedVarName.split("_")[2];
+		const amount = responseVars[donatedVarName];
+		const trigger_unit = objResponse.trigger_unit;
 
+		const symbol = asset === "base" ? "GBYTE" : await getSymbolByAsset(asset);
+		const decimals = asset === "base" ? 9 : await getDecimalsBySymbolOrAsset(asset) || 0;
+
+		if (conf.watchedRepos.includes(repository) || conf.watchedUsers.includes(owner) || conf.watchedRepos.length === 0 && conf.watchedUsers.length === 0) {
 			const embed = new Discord.MessageEmbed()
 				.setAuthor(`New donation`)
 				.setColor('#0037ff')
@@ -49,14 +55,40 @@ eventBus.on('aa_response', async function (objResponse) {
 					{ name: "Repository", value: `[${repository}](https://github.com/${repository})` },
 					{ name: "Amount", value: `[${amount / 10 ** decimals} ${symbol}](https://${conf.testnet ? "testnet" : ""}explorer.obyte.org/#${trigger_unit})` },
 					{ name: "\u200B", value: `You can [donate to ${repository}](${conf.frontend_url}/repo/${repository}) on kivach.org`, inline: true }
-					)
-				.setThumbnail(`https://avatars.githubusercontent.com/${repository.split("/")[0]}`)
-			sendToDiscord(embed);
+				)
+				.setThumbnail(`https://avatars.githubusercontent.com/${repository.split("/")[0]}`);
+
+			if (objResponse.timestamp > conf.last_full_reload_ts) {
+				sendToDiscord(embed);
+			} else {
+				console.error('ignored donation because of full reload')
+			}
+		}
+
+		const tokens = tokensStore.get();
+
+		if (asset in tokens.Obyte) {
+			const price = tokens.Obyte[asset]?.price;
+			if (price) {
+				const usd_amount = (amount / 10 ** decimals) * price;
+				const repo = repository.split("/")[1];
+
+				await api.saveDonation({
+					donor,
+					repository: repo,
+					owner,
+					usd_amount
+				});
+			}
+		} else {
+			console.error('no price found for asset', asset)
 		}
 	}
 });
 
 async function start() {
+	await create(); // init project DB structure
+
 	if (conf.enableNotificationDiscord) {
 		await initDiscord();
 		wallet_general.addWatchedAddress(conf.aa_address, function (error) {
@@ -69,7 +101,6 @@ async function start() {
 
 	webserver();
 	updater();
-	getTokens();
 
 	if (refreshIntervalId) clearInterval(refreshIntervalId);
 	refreshIntervalId = setInterval(lightWallet.refreshLightClientHistory, 60 * 1000);
@@ -87,10 +118,13 @@ async function initDiscord() {
 		return console.log("discord_token missing in conf, will not send discord notifications");
 	if (!conf.discord_channels || !conf.discord_channels.length)
 		throw Error("channels missing in conf");
+
 	discordClient = new Discord.Client();
+
 	discordClient.on('ready', () => {
 		console.log(`Logged in Discord as ${discordClient.user.tag}!`);
 	});
+
 	discordClient.on('error', (error) => {
 		console.log(`Discord error: ${error}`);
 	});
@@ -115,33 +149,6 @@ function sendToDiscord(to_be_sent) {
 			if (channel) channel.send(to_be_sent);
 		});
 	});
-}
-
-async function getSymbol(asset) {
-	try {
-		const symbol = await DAG.readAAStateVar(conf.token_registry_AA_address, 'a2s_' + asset);
-		return symbol || asset.slice(0, 5);
-	} catch (e) {
-		console.error("getSymbol", e);
-		return asset.slice(0, 5);
-	}
-}
-
-async function getDecimal(asset) {
-	try {
-		const desc_hash = await DAG.readAAStateVar(conf.token_registry_AA_address, 'current_desc_' + asset);
-		console.error("desc_hash", desc_hash);
-
-		if (desc_hash) {
-			return await DAG.readAAStateVar(conf.token_registry_AA_address, 'decimals_' + desc_hash) || 0;
-		} else {
-			return 0
-		}
-
-	} catch (e) {
-		console.error("getSymbol", e);
-		return 0;
-	}
 }
 
 process.on('unhandledRejection', up => { throw up });
