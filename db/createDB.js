@@ -5,16 +5,17 @@ exports.create = async function () {
   console.error("will create tables if not exist");
 
   await db.query(`CREATE TABLE IF NOT EXISTS ${conf.prefix}_total_donated (
-    donor CHAR(32) NOT NULL,
+    donor CHAR(32) NOT NULL PRIMARY KEY,
     usd_amount INTEGER NOT NULL DEFAULT 0,
-    UNIQUE(donor)
+    creation_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
   )`);
 
   await db.query(`CREATE TABLE IF NOT EXISTS ${conf.prefix}_donations (
     donor CHAR(32) NOT NULL,
     owner CHAR(40) NOT NULL,
     repository CHAR(100) NOT NULL,
-    usd_amount INTEGER NOT NULL DEFAULT 0
+    usd_amount INTEGER NOT NULL DEFAULT 0,
+    donation_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
   )`);
 
   await db.query(`CREATE TRIGGER IF NOT EXISTS ${conf.prefix}_update_total_donated AFTER INSERT ON ${conf.prefix}_donations
