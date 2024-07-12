@@ -4,6 +4,7 @@ const conf = require('ocore/conf.js');
 const RESPONSES_ON_PAGE = 10;
 
 module.exports = async (request, reply) => {
+	console.log(`recentController`, request);
 	const page = request.params?.page || 1;
 
 	if (isNaN(Number(page)) || page < 1) return reply.badRequest();
